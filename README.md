@@ -1,8 +1,7 @@
 # Performance-Preserving-Optimization-of-Diffusion-Networks
 Final project for HPML Spring 23 at NYU
 
-
-********** Running on Google Colab, testing purposes, single GPU **************************
+/*********** Running on Google Colab, testing purposes, single GPU **************************
 !python3 /content/hpml_project/training.py
 # specs->
 # trainer = Trainer(
@@ -83,5 +82,4 @@ ____________________________________________________________________
 #     trainer.train()
 
 ************************ Important TEST *******************************************
-->>>>>>>>>  No output in the directory, code runs tho!
-
+->>>>>>>>>  No output in the directory, code runs tho!*/
