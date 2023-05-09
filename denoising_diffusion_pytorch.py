@@ -328,41 +328,45 @@ class Unet(nn.Module):
         self.final_res_block = block_klass(dim * 2, dim, time_emb_dim = time_dim)
         self.final_conv = nn.Conv2d(dim, self.out_dim, 1)
 
-    def forward(self, x,time):
-        x = self.init_conv(x)
-        r = x.clone()
-        t = self.time_mlp(time)
+    def forward(self, x, time):
+      x = self.init_conv(x)
+      r = x.clone()
 
-        h = []
+      t = self.time_mlp(time)
 
-        for block1, block2, attn, downsample in self.downs:
-            x = block1(x, t)
-            h.append(x)
+      h = []
 
-            x = block2(x, t)
-            x = attn(x)
-            h.append(x)
+      for block1, block2, attn, downsample in self.downs:
+          x = block1(x, t)
+          h.append(x)
 
-            x = downsample(x)
+          x = block2(x, t)
+          x = attn(x)
+          h.append(x)
 
-        x = self.mid_block1(x, t)
-        x = self.mid_attn(x)
-        x = self.mid_block2(x, t)
+          x = downsample(x)
 
-        for block1, block2, attn, upsample in self.ups:
-            x = torch.cat((x, h.pop()), dim = 1)
-            x = block1(x, t)
+      x = self.mid_block1(x, t)
+      x = self.mid_attn(x)
+      x = self.mid_block2(x, t)
 
-            x = torch.cat((x, h.pop()), dim = 1)
-            x = block2(x, t)
-            x = attn(x)
+      for block1, block2, attn, upsample in self.ups:
+          x = torch.cat((x, h.pop()), dim=1)
+          x = block1(x, t)
 
-            x = upsample(x)
+          x = torch.cat((x, h.pop()), dim=1)
+          x = block2(x, t)
+          x = attn(x)
 
-        x = torch.cat((x, r), dim = 1)
+          x = upsample(x)
 
-        x = self.final_res_block(x, t)
-        return self.final_conv(x)
+      x = torch.cat((x, r), dim=1)
+
+      x = self.final_res_block(x, t)
+      x = self.final_conv(x)
+
+      return x
+
 
 # gaussian diffusion trainer class
 
@@ -628,13 +632,17 @@ class GaussianDiffusion(nn.Module):
         loss = loss * extract(self.p2_loss_weight, t, loss.shape)
         return loss.mean()
 
-    def forward(self, img, *args, **kwargs):
-        b, c, h, w, device, img_size, = *img.shape, img.device, self.image_size
+    def forward(self, img):
+        b, c, h, w = img.shape
+        device, img_size = img.device, self.image_size
         assert h == img_size and w == img_size, f'height and width of image must be {img_size}'
-        t = torch.randint(0, self.num_timesteps, (b,), device=device).long()
 
+        t = torch.randint(0, self.num_timesteps, (b,), device=device).long()
         img = normalize_to_neg_one_to_one(img)
-        return self.p_losses(img, t, *args, **kwargs)
+
+        loss = self.p_losses(img, t)
+        return loss
+
 
 # dataset classes
 
@@ -689,7 +697,7 @@ class Trainer(object):
         save_and_sample_every = 1000,
         num_samples = 25,
         results_folder = './results',
-        amp = False,
+        amp = False, # maybe try true
         fp16 = False,
         split_batches = True,
         convert_image_to = None,
@@ -722,7 +730,8 @@ class Trainer(object):
         # dataset and dataloader
 
         self.ds = Dataset(folder, self.image_size, augment_horizontal_flip = augment_horizontal_flip, convert_image_to = convert_image_to)
-        dl = DataLoader(self.ds, batch_size = train_batch_size, shuffle = True, pin_memory = True, num_workers = cpu_count())
+        dl = DataLoader(self.ds, batch_size = train_batch_size, shuffle = True, pin_memory = True, num_workers = cpu_count()) # change!
+        # dl = DataLoader(self.ds, batch_size = train_batch_size, shuffle = True, pin_memory = True, num_workers = 1) # change!
 
         dl = self.accelerator.prepare(dl)
         self.dl = cycle(dl)
