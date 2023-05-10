@@ -81,3 +81,172 @@ ____________________________________________________________________
 ************************ Important TEST *******************************************
 ->>>>>>>>>  No output in the directory, code runs tho!
 
+
+
+
+
+
+******************************** TESTING PROFILER ONLY ************************************
+#!/usr/bin/env python
+# coding: utf-8
+
+
+# In[ ]:
+"""
+PROFILING
+import torch
+from torch.profiler import profile, record_function, ProfilerActivity
+from denoising_diffusion_pytorch import Unet, GaussianDiffusion, Trainer
+
+model = Unet(
+    dim=64,
+    dim_mults=(1, 2, 4)
+).cuda()
+
+diffusion = GaussianDiffusion(
+    model,
+    image_size=32,
+    timesteps=1000,
+    sampling_timesteps=250,
+    loss_type='l1'
+).cuda()
+
+trainer = Trainer(
+    diffusion,
+    '/content/hpml_project/train',
+    train_batch_size=128,
+    train_lr=2e-4,
+    train_num_steps=1000,
+    gradient_accumulate_every=2,
+    ema_decay=0.995,
+    amp=False
+)
+
+with profile(
+    activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA],
+    record_shapes=True,
+    profile_memory=True,
+    with_stack=True,
+    use_cuda=True
+) as prof:
+    trainer.train()
+
+print(prof.key_averages().table(sort_by="self_cpu_time_total", row_limit=10))
+
+----------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+RESULTS: 
+                         COMMENT RUN OUT OF RAM
+/usr/local/lib/python3.10/dist-packages/torch/profiler/profiler.py:433: UserWarning: use_cuda is deprecated, use activities argument instead
+  warn("use_cuda is deprecated, use activities argument instead")
+STAGE:2023-05-10 01:53:37 5910:5910 ActivityProfilerController.cpp:311] Completed Stage: Warm Up
+loss: 0.8834:   0% 0/100 [00:03<?, ?it/s][W CPUAllocator.cpp:235] Memory block of unknown size was allocated before the profiling started, profiler results will not include the deallocation event
+loss: 0.2505: 100% 100/100 [01:20<00:00,  1.25it/s]
+training complete
+STAGE:2023-05-10 01:55:08 5910:5910 ActivityProfilerController.cpp:317] Completed Stage: Collection
+STAGE:2023-05-10 01:55:11 5910:5910 ActivityProfilerController.cpp:321] Completed Stage: Post Processing
+
+
+
+
+********************************************** SCRIPTING ************************************
+import torch
+import torch.jit
+from denoising_diffusion_pytorch import Unet, GaussianDiffusion, Trainer
+
+model = Unet(
+    dim=64,
+    dim_mults=(1, 2, 4)
+).cuda()
+
+diffusion = GaussianDiffusion(
+    model,
+    image_size=32,
+    timesteps=1000,
+    sampling_timesteps=250,
+    loss_type='l1'
+).cuda()
+
+trainer = Trainer(
+    diffusion,
+    '/content/hpml_project/train',
+    train_batch_size=128,
+    train_lr=2e-4,
+    train_num_steps=1000,
+    gradient_accumulate_every=2,
+    ema_decay=0.995,
+    amp=False
+)
+
+# Convert the trainer to a script
+scripted_trainer = torch.jit.script(trainer)
+
+# Save the script to a file
+torch.jit.save(scripted_trainer, "trainer.pt")
+
+----------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+RESULTS: 
+        RAM??????????????
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+**************************************** TRACING ********************************
+"""
+TRACING
+"""
+import torch
+import torch.jit
+from denoising_diffusion_pytorch import Unet
+
+model = Unet(
+    dim=64,
+    dim_mults=(1, 2, 4)
+).cuda()
+
+# Create an example input tensor
+x = torch.randn(1, 3, 32, 32).cuda()
+time = torch.rand(1)
+# Trace the model with the example input
+traced_model = torch.jit.trace(model, (x,time))
+
+# Call the traced model on the input to perform a forward pass and get the output
+output = traced_model(x,time)
+
+# Print the output
+print(output)
+
+
+tensor([[[[ 0.0261, -0.0281,  0.0562,  ..., -0.1251, -0.3131, -0.0716],
+          [-0.1296, -0.4396, -0.3792,  ..., -0.5265, -0.0437, -0.2751],
+          [-0.2136, -0.2105,  0.0296,  ..., -0.7300, -0.4346, -0.2069],
+          ...,
+          [ 0.2235, -0.1049,  0.0889,  ..., -0.2204, -0.0316, -0.4155],
+          [-0.3604, -0.1003, -0.3326,  ..., -0.0584, -0.1938, -0.1592],
+          [-0.3400, -0.3342, -0.3907,  ..., -0.3797, -0.2669, -0.1880]],
+
+         [[ 0.1807,  0.4241,  0.3228,  ...,  0.2081,  0.3042, -0.1797],
+          [ 0.5666,  0.2591,  0.4559,  ...,  0.8766,  0.4347,  0.1400],
+          [ 0.1974,  0.3560,  0.1786,  ...,  0.5648,  0.6248,  0.4016],
+          ...,
+          [ 0.1561,  0.8666, -0.0247,  ...,  1.0909,  0.0522,  0.3734],
+          [-0.1535,  0.1234,  0.3857,  ...,  0.1315,  0.1603,  0.5494],
+          [-0.0845,  0.0512,  0.0738,  ..., -0.0164,  0.0377,  0.1241]],
+
+         [[-0.3325,  0.2119, -0.3131,  ..., -0.1766, -0.3813, -0.1262],
+          [-0.1210,  0.1192, -0.0891,  ...,  0.0311, -0.1448, -0.2641],
+          [-0.0864,  0.0560,  0.0783,  ..., -0.1807,  0.2821, -0.3373],
+          ...,
+          [-0.1777,  0.3985, -0.1260,  ..., -0.3815,  0.4197, -0.0252],
+          [-0.1135, -0.3135,  0.1067,  ...,  0.0449,  0.2419, -0.0798],
+          [-0.1252, -0.1705,  0.3183,  ..., -0.2573, -0.0461, -0.2611]]]],
+       device='cuda:0', grad_fn=<ConvolutionBackward1>)
