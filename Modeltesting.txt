@@ -1,0 +1,4 @@
+On Google Colab, we showed the ability to AMP to significantly speed up model training times (around 0.6 iterations/second). 
+And due to limitations from limited runtime and computation capabilities, it wasn't feasible to use on profiling and tracing.
+
+Code has now been ported into HPC (NYU's Greene Supercomputer) for faster runtimes and using SBATCH commands to speed up compute times.
