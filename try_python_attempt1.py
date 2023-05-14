@@ -20,7 +20,7 @@ trainer = Trainer(
     '/scratch/vb2184/HPML_Project/Performance-Preserving-Optimization-of-Diffusion-Networks/cifar10/train',
     train_batch_size = 128,
     train_lr = 2e-4,
-    train_num_steps = 1000,
+    train_num_steps = 100,
     gradient_accumulate_every = 2,
     ema_decay = 0.995,
     amp = False
