@@ -18,3 +18,9 @@ improved losses.
 4. On 2 GPUs, AMP didn’t improve runtimes
 5. The convolutional backpropagation is the main bottleneck.
 6. In two GPUs, data is parallelized, so the model spends less time on backprop.
+
+Stats:
+1-1 GPU with AMP : CPU 28.3 CUDA 25.5    Total runtime - 502
+2-1 GPU w/out AMP : CPU 42.4 CUDA 41.09   Total runtime - 428
+3-2 GPUs with AMP : CPU 39.7 CUDA 25.4    Total runtime - 572
+3-2 GPUs w/out AMP : CPU 38.2 CUDA 25.3  Total runtime - 559
