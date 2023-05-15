@@ -3,6 +3,13 @@
 Final project for HPML Spring 23 at NYU
 The project we decided to work with is about the optimization of diffusion networks. As we will see in the latter sections of the report, the main idea of the project revolves around the possible ways to optimize the training of diffusion networks, by making use of PyTorch Profiling.
 
+Preparing the Dataset and reproducable:
+
+We download the cifar10 dataset from Kaggle as a zip. The zip file gets converted to a folderset using our code in cifar10loader.py. 
+
+To run code, you will need to install accelerate, ema al
+
+
 This repo contains all the necessary files needed to run the code, and also the reports.
 To run the training of the diffusion model, you can just clone this repository in your machine (GPU available machine)
 and run **nvbb training.ipynb**. The file includes all the necessary imports in the first few lines. There are also different python attempt files and their outputs, each with respective specifics incorporated. 
