@@ -5,9 +5,9 @@ The project we decided to work with is about the optimization of diffusion netwo
 
 Preparing the Dataset and reproducable:
 
-We download the cifar10 dataset from Kaggle as a zip. The zip file gets converted to a folderset using our code in cifar10loader.py. 
+We download the CIFAR-10 dataset from Kaggle as a zip. The zip file gets converted to a folderset using our code in cifar10loader.py. 
 
-To run code, you will need to install accelerate, ema al
+To run code, you will need to install accelerate, ema_pytorch and einops along with torch. Also make sure that the directory in your training functions matches the location of CIFAR-10 training set within your system. Similarly, ensure that the bash files are given access to the directory containing your training code.
 
 
 This repo contains all the necessary files needed to run the code, and also the reports.
